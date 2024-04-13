@@ -1,5 +1,4 @@
 import os
-from dataclasses import dataclass
 from datetime import datetime
 
 import pandas as pd
@@ -61,31 +60,44 @@ class AccountOperations:
 
 
 def clean_export(df: DataFrame) -> DataFrame:
-    df_clean = df[
+    """Formats raw transaction df ready for writing to Google Sheets."""
+    clean_df = df.copy()
+    clean_df["amount.minorUnits"] = clean_df["amount.minorUnits"].apply(
+        lambda x: x / 100
+    )
+    clean_df.loc[df["direction"] == "IN", "inflow"] = clean_df["amount.minorUnits"]
+    clean_df.loc[df["direction"] == "OUT", "outflow"] = clean_df["amount.minorUnits"]
+    clean_df["account"] = "Starling Current Account"
+
+    clean_df = clean_df[
         [
             "settlementTime",
+            "outflow",
+            "inflow",
             "spendingCategory",
-            "amount.minorUnits",
-            "counterPartyName",
+            "account",
             "reference",
             "status",
         ]
     ]
 
+    clean_df["outflow"] = clean_df["outflow"].fillna(0)
+    clean_df["inflow"] = clean_df["inflow"].fillna(0)
+
     name_mapping = {
         "settlementTime": "date",
         "spendingCategory": "category",
-        "amount.minorUnits": "txn_value",
         "counterPartyName": "payee",
         "reference": "reference",
         "status": "status",
     }
 
-    df_clean.rename(columns=name_mapping, inplace=True)
+    clean_df = clean_df.rename(columns=name_mapping)
 
-    df_clean["txn_value"] = df_clean["txn_value"].apply(lambda x: x / 100)
+    clean_df["date"] = pd.to_datetime(clean_df["date"]).dt.strftime("%d/%m/%Y")
 
-    df_clean["date"] = pd.to_datetime(df_clean["date"])
-    df_clean["date"] = df_clean["date"].dt.strftime("%d/%m/%Y")
+    status_mapping = {"SETTLED": "✅", "PENDING": "🅿️"}
 
-    return df_clean
+    clean_df["status"] = clean_df["status"].replace(status_mapping)
+
+    return clean_df

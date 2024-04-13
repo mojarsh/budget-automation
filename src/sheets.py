@@ -3,6 +3,7 @@ from datetime import datetime
 import gspread
 from google.oauth2 import service_account
 from gspread import Worksheet
+from pandas import DataFrame
 
 
 class SheetOperations:
@@ -43,4 +44,14 @@ class SheetOperations:
         col_vals = [x for x in self.open_sheet().col_values(2) if x != ""]
         return datetime.strptime(col_vals[-1], "%d/%m/%Y").strftime(
             "%Y-%m-%dT%H:%M:%SZ"
+        )
+
+    def get_first_blank_row(self) -> int:
+        return 1 + len([row for row in self.open_sheet().col_values(2)])
+
+    def write_to_worksheet(self, df: DataFrame) -> None:
+        ws = self.open_sheet()
+        ws.update(
+            range_name=f"B{self.get_first_blank_row()}:H{self.get_row_count()}",
+            values=df.values.tolist(),
         )

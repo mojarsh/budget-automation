@@ -9,11 +9,11 @@ def main() -> None:
     account = AccountOperations(headers)
 
     last_date = ws.get_last_entry_date()
-    transactions = account.export_transactions(date=last_date)
+    txns = account.export_transactions(date=last_date)
 
-    clean_txns = clean_export(df=transactions)
+    clean_txns = clean_export(df=txns)
 
-    return print(clean_txns)
+    return ws.write_to_worksheet(clean_txns)
 
 
 if __name__ == "__main__":
