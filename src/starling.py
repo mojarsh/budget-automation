@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 from datetime import datetime
 
 import pandas as pd
@@ -7,32 +8,20 @@ from dotenv import load_dotenv
 from pandas import DataFrame, json_normalize
 
 
-class StarlingAPI:
-    """Class containing methods to generate Starling Bank API credentials."""
+def gen_starling_api_headers() -> dict:
+    """Read Starling credentials from .env file, and generate API headers."""
 
-    def __init__(self) -> None:
-        self.pat
-        self.default_headers
+    load_dotenv()
+    pat = os.getenv("STARLING_PAT")
 
-    @property
-    def pat(self) -> str:
-        """Property returns Starling Bank API personal access token."""
-
-        load_dotenv()
-        return os.getenv("STARLING_PAT")
-
-    @property
-    def default_headers(self) -> dict:
-        """Property defined default API headers using personal access token."""
-
-        return {"Authorization": "Bearer " + self.pat}
+    return {"Authorization": "Bearer " + pat}
 
 
 class AccountOperations:
     """Class containing methods to access account data via HTTP request."""
 
-    def __init__(self, url: str, headers: dict) -> None:
-        self.url = url
+    def __init__(self, headers: dict) -> None:
+        self.url = "https://api.starlingbank.com/api/v2/"
         self.headers = headers
         self.timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
 
