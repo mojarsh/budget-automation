@@ -94,11 +94,9 @@ def clean_export(df: DataFrame) -> DataFrame:
 
     df_clean.rename(columns=name_mapping, inplace=True)
 
+    df_clean["txn_value"] = df_clean["txn_value"].apply(lambda x: x / 100)
+
     df_clean["date"] = pd.to_datetime(df_clean["date"])
     df_clean["date"] = df_clean["date"].dt.strftime("%d/%m/%Y")
 
     return df_clean
-
-
-if __name__ == "__main__":
-    clean_export()
