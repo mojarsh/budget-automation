@@ -1,12 +1,14 @@
-from sheets import SheetOperations
-from starling import AccountOperations, clean_export, gen_starling_api_headers
+from src.sheets import SheetOperations
+from src.starling import AccountOperations, clean_export, gen_starling_api_headers
+
+STARLING_URL = "https://api.starlingbank.com/api/v2/"
 
 
 def main() -> None:
     """Main function to call Starling API and return account balance."""
     headers = gen_starling_api_headers()
-    ws = SheetOperations(sheetname="Budget Automation Test", worksheet=4)
-    account = AccountOperations(headers)
+    ws = SheetOperations(sheetname="Budget", worksheet=4)
+    account = AccountOperations(url=STARLING_URL, headers=headers)
 
     last_date = ws.get_last_entry_date()
     txns = account.export_transactions(date=last_date)

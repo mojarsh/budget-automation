@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pandas as pd
 import requests
@@ -19,10 +19,13 @@ def gen_starling_api_headers() -> dict:
 class AccountOperations:
     """Class containing methods to access account data via HTTP request."""
 
-    def __init__(self, headers: dict) -> None:
-        self.url = "https://api.starlingbank.com/api/v2/"
+    def __init__(
+        self,
+        url: str,
+        headers: dict,
+    ) -> None:
+        self.url = url
         self.headers = headers
-        self.timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
 
     @property
     def account_uid(self) -> str:
@@ -51,7 +54,7 @@ class AccountOperations:
             + date
             + "&"
             "maxTransactionTimestamp="
-            + datetime.utcnow().strftime(self.timestamp_format),
+            + datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             headers=self.headers,
         )
         transactions.raise_for_status()
