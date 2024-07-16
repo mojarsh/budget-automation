@@ -1,10 +1,17 @@
 import os
 from datetime import datetime, timezone
+from enum import Enum
 
 import pandas as pd
 import requests
 from dotenv import load_dotenv
 from pandas import DataFrame, json_normalize
+
+
+class TransactionStatus(Enum):
+    SETTLED = "✅"
+    PENDING = "🅿️"
+    RECONCILED = "*️⃣"
 
 
 def gen_starling_api_headers() -> dict:
@@ -99,7 +106,10 @@ def clean_export(df: DataFrame) -> DataFrame:
 
     clean_df["date"] = pd.to_datetime(clean_df["date"]).dt.strftime("%d/%m/%Y")
 
-    status_mapping = {"SETTLED": "✅", "PENDING": "🅿️"}
+    status_mapping = {
+        "SETTLED": TransactionStatus.SETTLED.value,
+        "PENDING": TransactionStatus.PENDING.value,
+    }
 
     clean_df["status"] = clean_df["status"].replace(status_mapping)
 
