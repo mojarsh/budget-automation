@@ -69,7 +69,9 @@ class AccountOperations:
         return json_normalize(transactions.json()["feedItems"])
 
 
-def clean_export(df: DataFrame) -> DataFrame:
+def clean_export(
+    df: DataFrame, status_mapping: dict, category_mapping: dict
+) -> DataFrame:
     """Formats raw transaction df ready for writing to Google Sheets."""
     clean_df = df.copy()
     clean_df["amount.minorUnits"] = clean_df["amount.minorUnits"].apply(
@@ -106,11 +108,7 @@ def clean_export(df: DataFrame) -> DataFrame:
 
     clean_df["date"] = pd.to_datetime(clean_df["date"]).dt.strftime("%d/%m/%Y")
 
-    status_mapping = {
-        "SETTLED": TransactionStatus.SETTLED,
-        "PENDING": TransactionStatus.PENDING,
-    }
-
     clean_df["status"] = clean_df["status"].replace(status_mapping)
+    clean_df["category"] = clean_df["category"].replace(category_mapping)
 
     return clean_df
