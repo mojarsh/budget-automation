@@ -1,5 +1,9 @@
-from src.sheets import SheetOperations
-from src.starling import AccountOperations, clean_export, gen_starling_api_headers
+from budget_automation.sheets import SheetOperations
+from budget_automation.starling import (
+    AccountOperations,
+    clean_export,
+    gen_starling_api_headers,
+)
 
 STARLING_URL = "https://api.starlingbank.com/api/v2/"
 
