@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import gspread
 from google.oauth2 import service_account
@@ -38,13 +38,11 @@ class SheetOperations:
 
         return self.open_sheet().row_values(row_num)
 
-    def get_last_entry_date(self) -> str:
+    def get_last_entry_date(self) -> datetime:
         """Method returns last entry date in sheet."""
 
         col_vals = [x for x in self.open_sheet().col_values(2) if x != ""]
-        return datetime.strptime(col_vals[-1], "%d/%m/%Y").strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
+        return datetime.strptime(col_vals[-1], "%d/%m/%Y")
 
     def get_first_blank_row(self) -> int:
         return 1 + len([row for row in self.open_sheet().col_values(2)])
@@ -55,3 +53,11 @@ class SheetOperations:
             range_name=f"B{self.get_first_blank_row()}:H{self.get_row_count()}",
             values=df.values.tolist(),
         )
+
+
+def compute_next_transaction_date(last_date: datetime) -> str:
+    """Adds 1 day to the last transaction date in the sheet."""
+    next_date = last_date + timedelta(days=1)
+    next_date = next_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    return next_date
