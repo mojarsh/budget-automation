@@ -1,4 +1,4 @@
-from budget_automation.sheets import SheetOperations
+from budget_automation.sheets import SheetOperations, compute_next_transaction_date
 from budget_automation.starling import (
     AccountOperations,
     TransactionStatus,
@@ -32,7 +32,9 @@ def main() -> None:
     account = AccountOperations(url=STARLING_URL, headers=headers)
 
     last_date = ws.get_last_entry_date()
-    txns = account.export_transactions(date=last_date)
+    export_date = compute_next_transaction_date(last_date)
+
+    txns = account.export_transactions(date=export_date)
 
     clean_txns = clean_export(
         df=txns,
@@ -40,7 +42,7 @@ def main() -> None:
         category_mapping=PAYMENT_CATEGORY_MAPPING,
     )
 
-    return ws.write_to_worksheet(clean_txns)
+    return print(clean_txns.head())
 
 
 if __name__ == "__main__":
