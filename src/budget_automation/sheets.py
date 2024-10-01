@@ -52,6 +52,7 @@ class SheetOperations:
         ws.update(
             range_name=f"B{self.get_first_blank_row()}:H{self.get_row_count()}",
             values=df.values.tolist(),
+            raw=False,
         )
 
 
