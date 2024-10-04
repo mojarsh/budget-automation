@@ -42,7 +42,7 @@ def main() -> None:
         category_mapping=PAYMENT_CATEGORY_MAPPING,
     )
 
-    return print(clean_txns.head())
+    return ws.write_to_worksheet(clean_txns)
 
 
 if __name__ == "__main__":
