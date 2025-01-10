@@ -1,0 +1,30 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "simple": {
+            "format": "%(levelname)s: %(message)s"
+        },
+        "detailed": {
+            "format": "[%(levelname)s|%(module)s|L%(lineno)d] %(asctime)s: %(message)s",
+            "datefmt": "%Y-%m-%d-T%H:%M:%S%z"
+        }
+    },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "formatter": "detailed",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "logs/budget_automation.log",
+            "mode": "a",
+            "maxBytes": 200000,
+            "backupCount": 2
+        }
+    },
+    "loggers": {
+        "root": {
+            "level": "INFO",
+            "handlers": ["file"]
+        }
+    }
+}
