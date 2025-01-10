@@ -1,11 +1,15 @@
 import os
 from datetime import datetime, timezone
-from enum import StrEnum
+from pathlib import Path
 
 import pandas as pd
 import requests
 from dotenv import load_dotenv
 from pandas import DataFrame, json_normalize
+
+from budget_automation.logger import configure_logging
+
+LOG_CONFIG_PATH = Path("logging_config.json")
 
 STATUS_MAPPING = {"SETTLED": "✅"}
 CATEGORY_MAPPING = {
@@ -20,6 +24,8 @@ CATEGORY_MAPPING = {
     "HOLIDAYS": "Holiday Fund",
     "GENERAL": "Everything Else",
 }
+
+logger = configure_logging(LOG_CONFIG_PATH)
 
 
 def gen_starling_api_headers() -> dict:
@@ -67,6 +73,7 @@ class AccountOperations:
         transactions.raise_for_status()
         raw_export = json_normalize(transactions.json()["feedItems"])
         if raw_export.empty:
+            logger.info("No new transactions to export")
             return None
 
         else:
