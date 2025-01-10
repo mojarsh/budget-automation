@@ -1,6 +1,8 @@
 # Additional Exclusions
 google_creds.json
+*.db
 .DS_Store
+/logs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

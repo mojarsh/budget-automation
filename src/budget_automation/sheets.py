@@ -54,11 +54,3 @@ class SheetOperations:
             values=df.values.tolist(),
             raw=False,
         )
-
-
-def compute_next_transaction_date(last_date: datetime) -> str:
-    """Adds 1 day to the last transaction date in the sheet."""
-    next_date = last_date + timedelta(days=1)
-    next_date = next_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    return next_date

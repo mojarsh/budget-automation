@@ -1,0 +1,11 @@
+SELECT
+    *
+FROM
+    NEW_TRANSACTIONS
+WHERE
+    TRANSACTION_ID NOT IN (
+        SELECT
+            TRANSACTION_ID
+        FROM
+            SETTLED_TRANSACTIONS
+    );
