@@ -49,7 +49,7 @@ class AccountOperations:
         account = requests.get(self.url + "accounts", headers=self.headers)
         return account.json()["accounts"][0]["accountUid"]
 
-    def export_transactions(self, date: str) -> DataFrame:
+    def export_transactions(self, date: str) -> DataFrame | None:
         """Export account transactions for specified date range to DataFrame."""
 
         transactions = requests.get(
@@ -66,8 +66,13 @@ class AccountOperations:
         )
         transactions.raise_for_status()
         raw_export = json_normalize(transactions.json()["feedItems"])
+        if raw_export.empty:
+            return None
 
-        return _clean_export(raw_export)
+        else:
+            clean_export = _clean_export(raw_export)
+
+            return clean_export
 
 
 def _clean_export(df: DataFrame) -> DataFrame:
