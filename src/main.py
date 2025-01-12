@@ -52,6 +52,9 @@ def main() -> None:
                     "SETTLED_TRANSACTIONS", conn, if_exists="append", index=False
                 )
 
+                # Drop transaction_id before writing to worksheet
+                unique_new_transactions = unique_new_transactions.drop("transaction_id", axis=1)
+
             ws.write_to_worksheet(unique_new_transactions)
 
     except Exception as e:
