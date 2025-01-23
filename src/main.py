@@ -15,7 +15,7 @@ LOG_CONFIG_PATH = Path("logging_config.json")
 
 
 def main() -> None:
-    """Main function to call Starling API and return account balance."""
+    """Main function to run end-to-end export process."""
 
     logger = configure_logging(LOG_CONFIG_PATH)
     logger.info("Export process started")
@@ -62,7 +62,7 @@ def main() -> None:
         raise e
 
     finally:
-        logger.info("Export process completed successfully")
+        logger.info(f"Export process complete: {len(unique_new_transactions)} rows written")
 
 
 if __name__ == "__main__":
