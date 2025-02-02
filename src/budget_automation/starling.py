@@ -23,6 +23,7 @@ CATEGORY_MAPPING = {
     "LIFESTYLE": "Everything Else",
     "HOLIDAYS": "Holiday Fund",
     "GENERAL": "Everything Else",
+    "PERSONAL_CARE": "Haircut"
 }
 
 logger = configure_logging(LOG_CONFIG_PATH)
