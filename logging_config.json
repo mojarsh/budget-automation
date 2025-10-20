@@ -15,7 +15,7 @@
             "level": "INFO",
             "formatter": "detailed",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/budget_automation.log",
+            "filename": "budget_automation.log",
             "mode": "a",
             "maxBytes": 200000,
             "backupCount": 2
