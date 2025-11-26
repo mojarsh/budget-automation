@@ -58,19 +58,12 @@ class AccountOperations:
 
     def export_transactions(self, date: str) -> DataFrame | None:
         """Export account transactions for specified date range to DataFrame."""
-
-        transactions = requests.get(
-            self.url
-            + "feed/account/"
-            + self._account_uid
-            + "/settled-transactions-between?"
-            + "minTransactionTimestamp="
-            + date
-            + "&"
-            "maxTransactionTimestamp="
-            + datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            headers=self.headers,
+        query_url = (
+            f"{self.url}feed/account/{self.account_uid}/"
+            f"settled-transactions-between?minTransactionTimestamp={date}&"
+            f"maxTransactionTimestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")"
         )
+        transactions = requests.get(query_url, headers=self.headers)
         transactions.raise_for_status()
         raw_export = json_normalize(transactions.json()["feedItems"])
         if raw_export.empty:
