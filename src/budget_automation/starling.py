@@ -61,7 +61,7 @@ class AccountOperations:
         query_url = (
             f"{self.url}feed/account/{self._account_uid}/"
             f"settled-transactions-between?minTransactionTimestamp={date}&"
-            f"maxTransactionTimestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")"
+            f"maxTransactionTimestamp={datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}"
         )
         transactions = requests.get(query_url, headers=self.headers)
         transactions.raise_for_status()
