@@ -59,7 +59,7 @@ class AccountOperations:
     def export_transactions(self, date: str) -> DataFrame | None:
         """Export account transactions for specified date range to DataFrame."""
         query_url = (
-            f"{self.url}feed/account/{self.account_uid}/"
+            f"{self.url}feed/account/{self._account_uid}/"
             f"settled-transactions-between?minTransactionTimestamp={date}&"
             f"maxTransactionTimestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")"
         )
