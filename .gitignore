@@ -1,5 +1,4 @@
 # Additional Exclusions
-*.sh
 google_creds.json
 *.db
 .DS_Store
