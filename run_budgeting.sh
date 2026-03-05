@@ -20,6 +20,7 @@ sudo systemd-creds decrypt "$CREDS_DIR/google-json.cred" > "$TEMP_RAM/google_cre
 # Main Docker command
 sudo docker run --rm -d \
   --name budget_automation \
+  --network budget-automation_default \
   --env-file "$TEMP_RAM/.env" \
   -v "$TEMP_RAM/google_creds.json:/app/google_creds.json:ro" \
   -v "$BASE_DIR/logs/budget_automation.log:/app/budget_automation.log" \

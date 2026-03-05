@@ -25,6 +25,11 @@ CATEGORY_MAPPING = {
     "GENERAL": "Everything Else",
     "PERSONAL_CARE": "Haircut"
 }
+COLUMN_NAME_MAPPING = {
+        "feedItemUid": "transaction_id",
+        "settlementTime": "transaction_date",
+        "spendingCategory": "category",
+    }
 
 logger = configure_logging(LOG_CONFIG_PATH)
 
@@ -78,35 +83,44 @@ class AccountOperations:
 
 def _clean_export(df: DataFrame) -> DataFrame:
     """Formats raw transaction df ready for writing to Google Sheets."""
+
+    # Take a working copy of the raw DataFrame
     clean_df = df.copy()
+
+    # Apply mappings to rename columns, statuses and categories
+    clean_df = clean_df.rename(columns=COLUMN_NAME_MAPPING)
+    clean_df["status"] = clean_df["status"].replace(STATUS_MAPPING)
+    clean_df["category"] = clean_df["category"].replace(CATEGORY_MAPPING)
+
+    # Lambda function to convert values from pence to pounds
     clean_df["amount.minorUnits"] = clean_df["amount.minorUnits"].apply(
         lambda x: x / 100
     )
+
+    # Format transaction date as pandas date object
+    clean_df["transaction_date"] = pd.to_datetime(clean_df["transaction_date"]).dt.date
+
+    # Assign inflow and outflow amounts to correct columns based on direction, and fill blanks as 0
     clean_df.loc[df["direction"] == "IN", "inflow"] = clean_df["amount.minorUnits"]
     clean_df.loc[df["direction"] == "OUT", "outflow"] = clean_df["amount.minorUnits"]
+    clean_df["outflow"] = clean_df["outflow"].fillna(0)
+    clean_df["inflow"] = clean_df["inflow"].fillna(0)
+
+    # Set default account value
     clean_df["account"] = "Starling Current Account"
+
+    # Filter to required columns only
     clean_df = clean_df[
         [
-            "feedItemUid",
-            "settlementTime",
+            "transaction_id",
+            "transaction_date",
             "outflow",
             "inflow",
-            "spendingCategory",
+            "category",
             "account",
             "reference",
             "status",
         ]
     ]
-    clean_df["outflow"] = clean_df["outflow"].fillna(0)
-    clean_df["inflow"] = clean_df["inflow"].fillna(0)
-    name_mapping = {
-        "feedItemUid": "transaction_id",
-        "settlementTime": "date",
-        "spendingCategory": "category",
-    }
-    clean_df = clean_df.rename(columns=name_mapping)
-    clean_df["date"] = pd.to_datetime(clean_df["date"]).dt.strftime("%d/%m/%Y")
-    clean_df["status"] = clean_df["status"].replace(STATUS_MAPPING)
-    clean_df["category"] = clean_df["category"].replace(CATEGORY_MAPPING)
 
     return clean_df
