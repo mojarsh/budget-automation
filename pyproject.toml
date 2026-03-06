@@ -6,6 +6,7 @@ authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.12"
 readme = "README.md"
 dependencies = [
+    "bandit>=1.9.4",
     "cachetools==5.3.2",
     "certifi==2023.11.17",
     "charset-normalizer==3.3.2",
