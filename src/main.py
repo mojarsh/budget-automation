@@ -15,7 +15,7 @@ def main() -> None:
 
     try:
         headers = gen_starling_api_headers()
-        ws = SheetOperations(sheetname="Budget", worksheet=4)
+        ws = SheetOperations(workbook_name="Budget", worksheet_id=4)
         account = AccountOperations(settings.starling_url, headers)
 
         last_date = ws.get_last_entry_date().strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -26,12 +26,6 @@ def main() -> None:
 
             db = PostgresDatabase()
             unique_new_txns = db.upsert_new_transactions(new_txns)
-            # Drop transaction_id and reformat dates before writing to worksheet
-            unique_new_txns = unique_new_txns.drop("transaction_id", axis=1)
-            unique_new_txns["transaction_date"] = unique_new_txns[
-                "transaction_date"
-            ].map(lambda x: f"{x:%d/%m/%Y}")
-
             ws.write_to_worksheet(unique_new_txns)
 
         else:

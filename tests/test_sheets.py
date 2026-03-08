@@ -11,7 +11,7 @@ def mock_sheet_ops(mocker):
     """Patches gspread so SheetOperations can be instantiated without credentials."""
     mocker.patch("budget_automation.sheets.service_account.Credentials.from_service_account_file")
     mocker.patch("budget_automation.sheets.gspread.authorize")
-    return SheetOperations(sheetname="Budget", worksheet=4)
+    return SheetOperations(workbook_name="Budget", worksheet_id=4)
 
 
 class TestGetLastEntryDate:
