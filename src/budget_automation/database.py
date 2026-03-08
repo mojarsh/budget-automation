@@ -6,51 +6,22 @@ from budget_automation.config import get_settings
 
 class PostgresDatabase:
     def __init__(self):
-        self.settings = get_settings()
-        self.conn_str = self.settings.database_url
-        self.engine = create_engine(self.conn_str, pool_size=5, max_overflow=10)
+        settings = get_settings()
+        self.engine = create_engine(settings.database_url, pool_size=5, max_overflow=10)
+        self.sql_dir = settings.sql_dir
 
-    def reload_new_transactions(self, df: pd.DataFrame) -> None:
+    def upsert_new_transactions(self, df: pd.DataFrame) -> pd.DataFrame:
         """Truncate and load the new_transactions table with given DataFrame."""
 
         with self.engine.begin() as conn:
-            # Truncate table to clear current records
 
-            with open(self.settings.sql_dir / "truncate_new_transactions.sql") as f:
+            with open(self.sql_dir / "upsert_new_transactions.sql") as f:
                 query = f.read()
 
-            conn.execute(text(query))
+            result = conn.execute(text(query), {"rows": list(df.itertuples(index=False, name=None))})
+            inserted = result.fetchall()
 
-            # Send all newly loaded transactions to fresh table
-            df.to_sql(
-                name="new_transactions",
-                con=conn,
-                schema="budgeting",
-                if_exists="append",
-                index=False,
-                chunksize=500,
-            )
+        if not inserted:
+            return pd.DataFrame(columns=df.columns)
 
-    def get_unique_new_transactions(self) -> pd.DataFrame:
-        """Query new transactions to find those not already in settled table."""
-
-        with open(self.settings.sql_dir / "truncate_new_transactions.sql") as f:
-            query = f.read()
-
-        with self.engine.connect() as conn:
-            # Return only new transactions where transaction_id not present in SETTLED_TRANSACTIONS
-            return pd.read_sql(query, conn)
-
-    def write_to_settled_transactions(self, df: pd.DataFrame) -> None:
-        """Write unique new transactions to settled_transactions table."""
-
-        if not df.empty:
-            with self.engine.begin() as conn:
-                df.to_sql(
-                    name="settled_transactions",
-                    con=conn,
-                    schema="budgeting",
-                    if_exists="append",
-                    index=False,
-                    chunksize=500,
-                )
+        return pd.DataFrame(inserted, columns=df.columns)

@@ -25,9 +25,7 @@ def main() -> None:
         if new_txns is not None:
 
             db = PostgresDatabase()
-            db.reload_new_transactions(new_txns)
-            unique_new_txns = db.get_unique_new_transactions()
-            db.write_to_settled_transactions(unique_new_txns)
+            unique_new_txns = db.upsert_new_transactions(new_txns)
             # Drop transaction_id and reformat dates before writing to worksheet
             unique_new_txns = unique_new_txns.drop("transaction_id", axis=1)
             unique_new_txns["transaction_date"] = unique_new_txns[
