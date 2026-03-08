@@ -1,4 +1,4 @@
-import os
+from budget_automation.config import get_settings
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -7,9 +7,7 @@ import requests
 from dotenv import load_dotenv
 from pandas import DataFrame, json_normalize
 
-from budget_automation.logger import configure_logging
-
-LOG_CONFIG_PATH = Path("logging_config.json")
+import logging
 
 STATUS_MAPPING = {"SETTLED": "✅"}
 CATEGORY_MAPPING = {
@@ -31,16 +29,15 @@ COLUMN_NAME_MAPPING = {
     "spendingCategory": "category",
 }
 
-logger = configure_logging(LOG_CONFIG_PATH)
+logger = logging.getLogger(__name__)
 
 
 def gen_starling_api_headers() -> dict[str, str]:
     """Read Starling credentials from .env file, and generate API headers."""
 
-    load_dotenv()
-    pat = os.getenv("STARLING_PAT")
+    settings = get_settings()
 
-    return {"Authorization": "Bearer " + pat}
+    return {"Authorization": "Bearer " + settings.starling_pat}
 
 
 class AccountOperations:
@@ -94,6 +91,7 @@ def _parse_dates(df: DataFrame) -> DataFrame:
         transaction_date=pd.to_datetime(df["transaction_date"].str[:10]).dt.date
     )
 
+
 def _apply_mapping(df: DataFrame) -> DataFrame:
     """Apply mappings for transaction status and category."""
 
@@ -117,24 +115,26 @@ def _split_inflow_outflow(df: DataFrame) -> DataFrame:
         outflow=df["amount.minorUnits"].where(df["direction"] == "OUT", 0),
     )
 
+
 def _set_default_account(df: DataFrame) -> DataFrame:
     """Set Starling current account as the default for transactions."""
 
     return df.assign(account="Starling Current Account")
 
+
 def _filter_columns(df: DataFrame) -> DataFrame:
     """Remove columns not needed for further operations."""
 
-    columns =        [
-            "transaction_id",
-            "transaction_date",
-            "outflow",
-            "inflow",
-            "category",
-            "account",
-            "reference",
-            "status",
-        ]
+    columns = [
+        "transaction_id",
+        "transaction_date",
+        "outflow",
+        "inflow",
+        "category",
+        "account",
+        "reference",
+        "status",
+    ]
 
     return df.loc[:, columns]
 
