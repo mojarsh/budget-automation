@@ -1,7 +1,9 @@
-import pandas as pd
 from pathlib import Path
-import pytest
 from unittest.mock import MagicMock
+
+import pandas as pd
+import pytest
+
 from budget_automation.database import PostgresDatabase
 
 

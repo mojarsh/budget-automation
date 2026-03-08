@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     log_config_path: Path = Path("logging_config.json")
     starling_url: str = "https://api.starlingbank.com/api/v2/"
 
-    @computed_field
     @property
+    @computed_field
     def database_url(self) -> str:
         pw = quote_plus(self.postgres_password)
         return (

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import gspread
 from google.oauth2 import service_account
@@ -31,12 +31,12 @@ class SheetOperations:
     def get_row_count(self) -> int:
         """Method to get total number of rows in sheet."""
 
-        return self.open_sheet().row_count
+        return int(self.open_sheet().row_count)
 
-    def get_row_data(self, row_num: int) -> None:
+    def get_row_data(self, row_num: int) -> list:
         """Method returns data from specified row number."""
 
-        return self.open_sheet().row_values(row_num)
+        return list(self.open_sheet().row_values(row_num))
 
     def get_last_entry_date(self) -> datetime:
         """Method returns last entry date in sheet."""

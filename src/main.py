@@ -1,8 +1,8 @@
+from budget_automation.config import get_settings
+from budget_automation.database import PostgresDatabase
 from budget_automation.logger import configure_logging
 from budget_automation.sheets import SheetOperations
 from budget_automation.starling import AccountOperations, gen_starling_api_headers
-from budget_automation.database import PostgresDatabase
-from budget_automation.config import get_settings
 
 
 def main() -> None:
