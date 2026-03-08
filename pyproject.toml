@@ -67,6 +67,9 @@ plugins = ["pydantic.mypy"]
 testpaths = ["tests"]
 addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80"
 pythonpath = ["src"]
+filterwarnings = [
+	"ignore::DeprecationWarning:dateutil.*"
+]
 
 [tool.coverage.run]
 source = ["src"]
