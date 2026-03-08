@@ -23,18 +23,18 @@ CATEGORY_MAPPING = {
     "LIFESTYLE": "Everything Else",
     "HOLIDAYS": "Holiday Fund",
     "GENERAL": "Everything Else",
-    "PERSONAL_CARE": "Haircut"
+    "PERSONAL_CARE": "Haircut",
 }
 COLUMN_NAME_MAPPING = {
-        "feedItemUid": "transaction_id",
-        "settlementTime": "transaction_date",
-        "spendingCategory": "category",
-    }
+    "feedItemUid": "transaction_id",
+    "settlementTime": "transaction_date",
+    "spendingCategory": "category",
+}
 
 logger = configure_logging(LOG_CONFIG_PATH)
 
 
-def gen_starling_api_headers() -> dict:
+def gen_starling_api_headers() -> dict[str, str]:
     """Read Starling credentials from .env file, and generate API headers."""
 
     load_dotenv()
@@ -49,7 +49,7 @@ class AccountOperations:
     def __init__(
         self,
         url: str,
-        headers: dict,
+        headers: dict[str, str],
     ) -> None:
         self.url = url
         self.headers = headers
@@ -76,42 +76,56 @@ class AccountOperations:
             return None
 
         else:
-            clean_export = _clean_export(raw_export)
+            clean_export = _clean_raw_export(raw_export)
 
             return clean_export
 
 
-def _clean_export(df: DataFrame) -> DataFrame:
-    """Formats raw transaction df ready for writing to Google Sheets."""
+def _rename_columns(df: DataFrame) -> DataFrame:
+    """Renames columns using mapping dict specified."""
 
-    # Take a working copy of the raw DataFrame
-    clean_df = df.copy()
+    return df.rename(columns=COLUMN_NAME_MAPPING)
 
-    # Apply mappings to rename columns, statuses and categories
-    clean_df = clean_df.rename(columns=COLUMN_NAME_MAPPING)
-    clean_df["status"] = clean_df["status"].replace(STATUS_MAPPING)
-    clean_df["category"] = clean_df["category"].replace(CATEGORY_MAPPING)
 
-    # Lambda function to convert values from pence to pounds
-    clean_df["amount.minorUnits"] = clean_df["amount.minorUnits"].apply(
-        lambda x: x / 100
+def _parse_dates(df: DataFrame) -> DataFrame:
+    """Strips date string from timestamp returned by Starling API."""
+
+    return df.assign(
+        transaction_date=pd.to_datetime(df["transaction_date"].str[:10]).dt.date
     )
 
-    # Format transaction date as pandas date object
-    clean_df["transaction_date"] = pd.to_datetime(clean_df["transaction_date"]).dt.date
+def _apply_mapping(df: DataFrame) -> DataFrame:
+    """Apply mappings for transaction status and category."""
 
-    # Assign inflow and outflow amounts to correct columns based on direction, and fill blanks as 0
-    clean_df.loc[df["direction"] == "IN", "inflow"] = clean_df["amount.minorUnits"]
-    clean_df.loc[df["direction"] == "OUT", "outflow"] = clean_df["amount.minorUnits"]
-    clean_df["outflow"] = clean_df["outflow"].fillna(0)
-    clean_df["inflow"] = clean_df["inflow"].fillna(0)
+    return df.assign(
+        status=df["status"].replace(STATUS_MAPPING),
+        category=df["category"].replace(CATEGORY_MAPPING),
+    )
 
-    # Set default account value
-    clean_df["account"] = "Starling Current Account"
 
-    # Filter to required columns only
-    clean_df = clean_df[
-        [
+def _convert_pence_to_pounds(df: DataFrame) -> DataFrame:
+    """Convert minorUnits to pounds with vectorised operation."""
+
+    return df.assign(**{"amount.minorUnits": df["amount.minorUnits"] / 100})
+
+
+def _split_inflow_outflow(df: DataFrame) -> DataFrame:
+    """Takes direction, and infers whether transaction is incoming or outgoing."""
+
+    return df.assign(
+        inflow=df["amount.minorUnits"].where(df["direction"] == "IN", 0),
+        outflow=df["amount.minorUnits"].where(df["direction"] == "OUT", 0),
+    )
+
+def _set_default_account(df: DataFrame) -> DataFrame:
+    """Set Starling current account as the default for transactions."""
+
+    return df.assign(account="Starling Current Account")
+
+def _filter_columns(df: DataFrame) -> DataFrame:
+    """Remove columns not needed for further operations."""
+
+    columns =        [
             "transaction_id",
             "transaction_date",
             "outflow",
@@ -121,6 +135,21 @@ def _clean_export(df: DataFrame) -> DataFrame:
             "reference",
             "status",
         ]
-    ]
 
-    return clean_df
+    return df.loc[:, columns]
+
+
+def _clean_raw_export(df: DataFrame) -> DataFrame:
+    """Formats raw transaction df ready for writing to Google Sheets."""
+
+    # Take a working copy of the raw DataFrame
+    return (
+        df.copy()
+        .pipe(_rename_columns)
+        .pipe(_parse_dates)
+        .pipe(_apply_mapping)
+        .pipe(_convert_pence_to_pounds)
+        .pipe(_split_inflow_outflow)
+        .pipe(_set_default_account)
+        .pipe(_filter_columns)
+    )
