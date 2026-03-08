@@ -10,8 +10,7 @@ def main() -> None:
 
     settings = get_settings()
     logger = configure_logging(settings.log_config_path)
-    logger.info("Export process started")
-    unique_new_txns = []
+    logger.info("Export started")
 
     try:
         headers = gen_starling_api_headers()
@@ -25,19 +24,16 @@ def main() -> None:
         if new_txns is not None:
 
             db = PostgresDatabase()
-            unique_new_txns = db.upsert_new_transactions(new_txns)
-            ws.write_to_worksheet(unique_new_txns)
+            unique = db.upsert_new_transactions(new_txns)
+            ws.write_to_worksheet(unique)
+            logger.info(f"Export complete: {len(unique)} rows written")
 
         else:
-            logger.info("No unique new transactions to write")
-            unique_new_txns = []
+            logger.info("No new transactions to write")
 
     except Exception as e:
         logger.error(e)
-
-    finally:
-        logger.info(f"Export process complete: {len(unique_new_txns)} rows written")
-
+        raise
 
 if __name__ == "__main__":
     main()
