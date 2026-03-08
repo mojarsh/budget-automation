@@ -1,6 +1,7 @@
-from sqlalchemy import text, create_engine
-from budget_automation.config import get_settings
 import pandas as pd
+from sqlalchemy import create_engine, text
+
+from budget_automation.config import get_settings
 
 
 class PostgresDatabase:
@@ -14,11 +15,11 @@ class PostgresDatabase:
 
         with self.engine.begin() as conn:
             # Truncate table to clear current records
-            conn.execute(
-                text(
-                    open(self.settings.sql_dir / "truncate_new_transactions.sql").read()
-                )
-            )
+
+            with open(self.settings.sql_dir / "truncate_new_transactions.sql") as f:
+                query = f.read()
+
+            conn.execute(text(query))
 
             # Send all newly loaded transactions to fresh table
             df.to_sql(
@@ -33,7 +34,9 @@ class PostgresDatabase:
     def get_unique_new_transactions(self) -> pd.DataFrame:
         """Query new transactions to find those not already in settled table."""
 
-        query = text(open(self.settings.sql_dir / "unique_new_transactions.sql").read())
+        with open(self.settings.sql_dir / "truncate_new_transactions.sql") as f:
+            query = f.read()
+
         with self.engine.connect() as conn:
             # Return only new transactions where transaction_id not present in SETTLED_TRANSACTIONS
             return pd.read_sql(query, conn)

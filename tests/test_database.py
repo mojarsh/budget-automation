@@ -1,6 +1,7 @@
+from unittest.mock import MagicMock
+
 import pandas as pd
-import pytest
-from unittest.mock import MagicMock, call, patch
+
 
 class TestReloadNewTransactions:
 
@@ -14,7 +15,7 @@ class TestReloadNewTransactions:
         first_call_arg = str(mock_conn.execute.call_args_list[0].args[0])
         assert "TRUNCATE" in first_call_arg.upper()
 
-    def test_loads_dataframe_to_new_transactions_table(self, mock_db, sample_transactions_df, mocker):
+    def test_df_load_to_new_transactions_table(self, mock_db, sample_transactions_df, mocker):
         mock_conn = MagicMock()
         mock_db.engine.begin.return_value.__enter__.return_value = mock_conn
         mock_to_sql = mocker.patch.object(sample_transactions_df.__class__, "to_sql")
@@ -46,7 +47,9 @@ class TestGetUniqueNewTransactions:
     def test_executes_correct_sql_file(self, mock_db, sample_transactions_df, mocker):
         mock_conn = MagicMock()
         mock_db.engine.connect.return_value.__enter__.return_value = mock_conn
-        mock_read_sql = mocker.patch("budget_automation.database.pd.read_sql", return_value=sample_transactions_df)
+        mock_read_sql = mocker.patch(
+            "budget_automation.database.pd.read_sql", return_value=sample_transactions_df
+        )
 
         mock_db.get_unique_new_transactions()
 

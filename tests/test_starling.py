@@ -1,8 +1,9 @@
-import pandas as pd
 from datetime import date
-import requests
+
 import pytest
-from budget_automation.starling import _clean_raw_export, AccountOperations
+import requests
+
+from budget_automation.starling import AccountOperations, _clean_raw_export
 
 
 class TestCleanExport:
@@ -82,7 +83,6 @@ class TestAccountOperations:
         assert result is None
 
     def test_export_raises_on_http_error(self, mocker, mock_accounts_response):
-        import requests
 
         mock_get = mocker.patch("budget_automation.starling.requests.get")
         mock_get.return_value.json.return_value = mock_accounts_response

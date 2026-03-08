@@ -1,13 +1,11 @@
-from budget_automation.config import get_settings
-from datetime import datetime, timezone
-from pathlib import Path
+import logging
+from datetime import UTC, datetime
 
 import pandas as pd
 import requests
-from dotenv import load_dotenv
 from pandas import DataFrame, json_normalize
 
-import logging
+from budget_automation.config import get_settings
 
 STATUS_MAPPING = {"SETTLED": "✅"}
 CATEGORY_MAPPING = {
@@ -56,27 +54,25 @@ class AccountOperations:
         """Property returns Starling Bank account uid."""
 
         account = requests.get(self.url + "accounts", headers=self.headers)
-        return account.json()["accounts"][0]["accountUid"]
+        return str(account.json()["accounts"][0]["accountUid"])
 
     def export_transactions(self, date: str) -> DataFrame | None:
         """Export account transactions for specified date range to DataFrame."""
         query_url = (
             f"{self.url}feed/account/{self._account_uid}/"
             f"settled-transactions-between?minTransactionTimestamp={date}&"
-            f"maxTransactionTimestamp={datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}"
+            f"maxTransactionTimestamp={datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")}"
         )
         transactions = requests.get(query_url, headers=self.headers)
         transactions.raise_for_status()
-        raw_export = json_normalize(transactions.json()["feedItems"])
+        feed_items: list[dict] = transactions.json()["feedItems"]
+        raw_export = json_normalize(feed_items)
         if raw_export.empty:
             logger.info("No new transactions to export")
             return None
 
         else:
-            clean_export = _clean_raw_export(raw_export)
-
-            return clean_export
-
+            return _clean_raw_export(raw_export)
 
 def _rename_columns(df: DataFrame) -> DataFrame:
     """Renames columns using mapping dict specified."""
