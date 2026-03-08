@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     postgres_host: str = "db"
     postgres_port: int = 5432
     postgres_db: str = "tcpostgres"
-    sql_dir: Path = Path("src/budget_automation/SQL")
+    sql_dir: Path = Path("src/budget_automation")
     log_config_path: Path = Path("logging_config.json")
     starling_url: str = "https://api.starlingbank.com/api/v2/"
 

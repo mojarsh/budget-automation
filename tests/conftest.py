@@ -56,7 +56,7 @@ def mock_db(mocker):
 
     mock_settings = MagicMock()
     mock_settings.database_url = "postgresql+psycopg2://test:test@localhost:5432/test"
-    mock_settings.sql_dir = Path("src/budget_automation/SQL")
+    mock_settings.sql_dir = Path("src/budget_automation")
     mocker.patch("budget_automation.database.get_settings", return_value=mock_settings)
     mocker.patch("budget_automation.database.create_engine")
 
