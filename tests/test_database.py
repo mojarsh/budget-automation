@@ -1,6 +1,7 @@
+from unittest.mock import MagicMock, mock_open
+
 import pandas as pd
 import pytest
-from unittest.mock import MagicMock, mock_open
 
 
 class TestUpsertTransactions:
@@ -55,7 +56,7 @@ class TestUpsertTransactions:
 
         assert list(result.columns) == list(sample_transactions_df.columns)
 
-    def test_returns_only_inserted_rows_when_partial_duplicates(self, mock_db, sample_transactions_df):
+    def test_only_new_inserted_if_duplicates(self, mock_db, sample_transactions_df):
         """When some rows are duplicates, only the newly inserted rows are returned."""
         mock_conn = MagicMock()
         mock_db.engine.begin.return_value.__enter__.return_value = mock_conn
@@ -76,7 +77,10 @@ class TestUpsertTransactions:
         mock_conn.execute.return_value.fetchall.return_value = []
         mock_file = mocker.patch(
             "builtins.open",
-            mock_open(read_data="INSERT INTO settled_transactions ON CONFLICT DO NOTHING RETURNING *")
+            mock_open(
+                read_data=
+                "INSERT INTO settled_transactions ON CONFLICT DO NOTHING RETURNING *"
+            )
         )
 
         mock_db.upsert_new_transactions(sample_transactions_df)

@@ -18,7 +18,9 @@ class PostgresDatabase:
             with open(self.sql_dir / "upsert_new_transactions.sql") as f:
                 query = f.read()
 
-            result = conn.execute(text(query), {"rows": list(df.itertuples(index=False, name=None))})
+            result = conn.execute(
+                text(query), {"rows": list(df.itertuples(index=False, name=None))}
+            )
             inserted = result.fetchall()
 
         if not inserted:

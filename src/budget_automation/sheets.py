@@ -1,7 +1,7 @@
 from datetime import datetime
-import pandas as pd
 
 import gspread
+import pandas as pd
 from google.oauth2 import service_account
 from gspread import Worksheet
 from pandas import DataFrame
@@ -13,6 +13,7 @@ class SheetOperations:
     def __init__(self, workbook_name: str, worksheet_id: int) -> None:
         self.scope = [
             "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive.readonly",
         ]
         self.creds = service_account.Credentials.from_service_account_file(
             filename="google_creds.json", scopes=self.scope
