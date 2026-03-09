@@ -19,9 +19,9 @@ class Settings(BaseSettings):
     log_config_path: Path = Path("logging_config.json")
     starling_url: str = "https://api.starlingbank.com/api/v2/"
 
+    @computed_field # type: ignore[prop-decorator]
     @property
-    @computed_field
-    def database_url(self) -> str:
+    def database_url(self) -> str: 
         pw = quote_plus(self.postgres_password)
         return (
             f"postgresql+psycopg2://{self.postgres_user}:{pw}"
