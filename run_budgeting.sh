@@ -20,7 +20,7 @@ sudo systemd-creds decrypt "$CREDS_DIR/google-json.cred" > "$TEMP_RAM/google_cre
 CREDS_DIR="$TEMP_RAM" \
 GOOGLE_CREDS_PATH="$TEMP_RAM/google_creds.json" \
 BASE_DIR="$BASE_DIR" \
-  docker compose run --rm budget_automation
+ sudo -E docker compose run --rm budget_automation
 
 sudo rm -rf "$TEMP_RAM"/*
 sudo umount "$TEMP_RAM"
