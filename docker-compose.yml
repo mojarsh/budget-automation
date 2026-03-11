@@ -4,11 +4,24 @@ services:
     container_name: postgres_db
     restart: always
     env_file:
-      - /home/USER/automation/budgeting/creds/.env
+      - ${CREDS_DIR:-.}/.env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  budget_automation:
+      image: budget-automation:latest
+      container_name: budget_automation
+      env_file:
+        - ${CREDS_DIR:-.}/secrets.env
+      volumes:
+        - ${GOOGLE_CREDS_PATH:-./google_creds.json}:/app/google_creds.json:ro
+        - ${BASE_DIR:-./logs}/logs/budget_automation.log:/app/budget_automation.log
+      depends_on:
+        - db
+      profiles:
+        - run
 
 volumes:
   postgres_data:
