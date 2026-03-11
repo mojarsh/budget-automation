@@ -8,3 +8,5 @@ format:
 	uv run ruff format src/ tests/
 typecheck:
 	uv run mypy src/
+security:
+	uv run bandit -r src/ -ll
