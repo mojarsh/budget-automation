@@ -17,10 +17,13 @@ fi
 sudo systemd-creds decrypt "$CREDS_DIR/budget-env.cred" > "$TEMP_RAM/.env"
 sudo systemd-creds decrypt "$CREDS_DIR/google-json.cred" > "$TEMP_RAM/google_creds.json"
 
+IMAGE="ghcr.io/mojarsh/budget-automation:latest"
+sudo docker pull "$IMAGE"
+
 CREDS_DIR="$TEMP_RAM" \
 GOOGLE_CREDS_PATH="$TEMP_RAM/google_creds.json" \
 BASE_DIR="$BASE_DIR" \
- sudo -E docker compose run --rm budget_automation
+  sudo -E docker compose run --rm budget_automation
 
 sudo rm -rf "$TEMP_RAM"/*
 sudo umount "$TEMP_RAM"
