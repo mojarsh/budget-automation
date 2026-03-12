@@ -84,8 +84,7 @@ class AccountOperations:
             logger.info("No new transactions to export")
             return None
 
-        else:
-            return _clean_raw_export(raw_export)
+        return _clean_raw_export(raw_export)
 
 
 def _rename_columns(df: DataFrame) -> DataFrame:
