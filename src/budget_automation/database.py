@@ -3,6 +3,7 @@ from decimal import Decimal
 import pandas as pd
 from sqlalchemy import Column, Date, Float, MetaData, String, Table, create_engine, literal_column
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.engine import CursorResult
 
 from budget_automation.config import get_settings
 
@@ -29,7 +30,7 @@ class PostgresDatabase:
         records = df.to_dict(orient="records")
 
         with self.engine.begin() as conn:
-            result = conn.execute(
+            result: CursorResult = conn.execute(
                 insert(self._table)
                 .values(records)
                 .on_conflict_do_nothing(index_elements=["transaction_id"])
