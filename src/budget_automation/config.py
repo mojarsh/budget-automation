@@ -20,9 +20,9 @@ class Settings(BaseSettings):
     sheets_workbook: str = "Budget"
     sheets_worksheet_id: int = 4
 
-    @computed_field # type: ignore[prop-decorator]
+    @computed_field  # type: ignore[prop-decorator]
     @property
-    def database_url(self) -> str: 
+    def database_url(self) -> str:
         pw = quote_plus(self.postgres_password)
         return (
             f"postgresql+psycopg2://{self.postgres_user}:{pw}"

@@ -15,7 +15,6 @@ def mock_sheet_ops(mocker):
 
 
 class TestGetLastEntryDate:
-
     def test_returns_correct_date(self, mock_sheet_ops):
         mock_ws = MagicMock()
         mock_ws.col_values.return_value = ["Date", "04/03/2026", "05/03/2026"]
@@ -34,7 +33,6 @@ class TestGetLastEntryDate:
 
 
 class TestGetFirstBlankRow:
-
     def test_blank_row_after_data(self, mock_sheet_ops):
         mock_ws = MagicMock()
         mock_ws.col_values.return_value = ["Date", "04/03/2026", "05/03/2026"]

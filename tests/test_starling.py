@@ -7,7 +7,6 @@ from budget_automation.starling import AccountOperations, _clean_raw_export
 
 
 class TestCleanExport:
-
     def test_pence_converted_to_pounds(self, raw_transaction_df):
         result = _clean_raw_export(raw_transaction_df)
         assert result["inflow"].iloc[0] == pytest.approx(12.50)
@@ -61,7 +60,6 @@ class TestCleanExport:
 
 
 class TestAccountOperations:
-
     def test_account_uid_property(self, mocker, mock_accounts_response):
         mock_get = mocker.patch("budget_automation.starling.requests.get")
         mock_get.return_value.json.return_value = mock_accounts_response
@@ -69,12 +67,8 @@ class TestAccountOperations:
         ops = AccountOperations(url="https://api.example.com/", headers={})
         assert ops._account_uid == "account-id-abc123"
 
-    def test_export_returns_none_when_no_transactions(
-        self, mocker, mock_accounts_response
-    ):
-        mocker.patch(
-            "budget_automation.starling.requests.get"
-        ).return_value.json.side_effect = [
+    def test_export_returns_none_when_no_transactions(self, mocker, mock_accounts_response):
+        mocker.patch("budget_automation.starling.requests.get").return_value.json.side_effect = [
             mock_accounts_response,
             {"feedItems": []},  # empty response
         ]

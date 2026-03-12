@@ -5,16 +5,31 @@ import pytest
 
 
 class TestUpsertTransactions:
-
     def test_returns_dataframe_of_inserted_rows(self, mock_db, sample_transactions_df):
         """Rows not already in settled_transactions are inserted and returned."""
         mock_conn = MagicMock()
         mock_db.engine.begin.return_value.__enter__.return_value = mock_conn
         mock_conn.execute.return_value.fetchall.return_value = [
-            ("uid-001", "2026-03-04", 0.0, 12.50, "Eating Out",
-             "Starling Current Account", "Pret", "✅"),
-            ("uid-002", "2026-03-05", 50.00, 0.0, "Public Transport",
-             "Starling Current Account", "Salary", "✅"),
+            (
+                "uid-001",
+                "2026-03-04",
+                0.0,
+                12.50,
+                "Eating Out",
+                "Starling Current Account",
+                "Pret",
+                "✅",
+            ),
+            (
+                "uid-002",
+                "2026-03-05",
+                50.00,
+                0.0,
+                "Public Transport",
+                "Starling Current Account",
+                "Salary",
+                "✅",
+            ),
         ]
 
         result = mock_db.upsert_new_transactions(sample_transactions_df)
@@ -27,8 +42,16 @@ class TestUpsertTransactions:
         mock_conn = MagicMock()
         mock_db.engine.begin.return_value.__enter__.return_value = mock_conn
         mock_conn.execute.return_value.fetchall.return_value = [
-            ("uid-001", "2026-03-04", 0.0, 12.50, "Eating Out",
-             "Starling Current Account", "Pret", "✅"),
+            (
+                "uid-001",
+                "2026-03-04",
+                0.0,
+                12.50,
+                "Eating Out",
+                "Starling Current Account",
+                "Pret",
+                "✅",
+            ),
         ]
 
         result = mock_db.upsert_new_transactions(sample_transactions_df)
@@ -61,8 +84,16 @@ class TestUpsertTransactions:
         mock_conn = MagicMock()
         mock_db.engine.begin.return_value.__enter__.return_value = mock_conn
         mock_conn.execute.return_value.fetchall.return_value = [
-            ("uid-001", "2026-03-04", 0.0, 12.50, "Eating Out",
-             "Starling Current Account", "Pret", "✅"),
+            (
+                "uid-001",
+                "2026-03-04",
+                0.0,
+                12.50,
+                "Eating Out",
+                "Starling Current Account",
+                "Pret",
+                "✅",
+            ),
         ]
 
         result = mock_db.upsert_new_transactions(sample_transactions_df)
@@ -93,6 +124,7 @@ class TestUpsertTransactions:
     def test_uses_sqlalchemy_insert_construct(self, mock_db, sample_transactions_df, mocker):
         """Execution uses the SQLAlchemy insert construct, not a raw text() statement."""
         from sqlalchemy.dialects.postgresql import Insert
+
         mock_conn = MagicMock()
         mock_db.engine.begin.return_value.__enter__.return_value = mock_conn
         mock_conn.execute.return_value.fetchall.return_value = []
@@ -118,6 +150,7 @@ class TestUpsertTransactions:
     def test_raises_on_database_error(self, mock_db, sample_transactions_df):
         """Database errors propagate to the caller rather than being swallowed."""
         from sqlalchemy.exc import SQLAlchemyError
+
         mock_conn = MagicMock()
         mock_db.engine.begin.return_value.__enter__.return_value = mock_conn
         mock_conn.execute.side_effect = SQLAlchemyError("connection refused")

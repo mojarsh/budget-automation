@@ -63,13 +63,12 @@ class SheetOperations:
             raw=False,
         )
 
+
 def _clean_transactions_before_export(df: DataFrame) -> DataFrame:
     """Final cleaning and formatting of new transactions before sheets export."""
 
     # Drop transaction_id and reformat dates before writing to worksheet
     df = df.drop("transaction_id", axis=1)
-    df["transaction_date"] = (
-        pd.to_datetime(df["transaction_date"]).dt.strftime("%d/%m/%Y")
-    )
+    df["transaction_date"] = pd.to_datetime(df["transaction_date"]).dt.strftime("%d/%m/%Y")
 
     return df
