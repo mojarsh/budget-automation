@@ -11,7 +11,6 @@ class PostgresDatabase:
     def __init__(self):
         settings = get_settings()
         self.engine = create_engine(settings.database_url, pool_size=5, max_overflow=10)
-        self.sql_dir = settings.sql_dir
         self._table = Table(
             "settled_transactions",
             MetaData(schema="budgeting"),

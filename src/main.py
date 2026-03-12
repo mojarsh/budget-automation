@@ -14,7 +14,9 @@ def main() -> None:
 
     try:
         headers = gen_starling_api_headers()
-        ws = SheetOperations(workbook_name="Budget", worksheet_id=4)
+        ws = SheetOperations(
+            workbook_name=settings.sheets_workbook,
+            worksheet_id=settings.sheets_worksheet_id)
         account = AccountOperations(settings.starling_url, headers)
 
         last_date = ws.get_last_entry_date().strftime("%Y-%m-%dT%H:%M:%SZ")
