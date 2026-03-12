@@ -53,7 +53,7 @@ class AccountOperations:
     def _account_uid(self) -> str:
         """Property returns Starling Bank account uid."""
 
-        account = requests.get(self.url + "accounts", headers=self.headers)
+        account = requests.get(self.url + "accounts", headers=self.headers, timeout=10)
         return str(account.json()["accounts"][0]["accountUid"])
 
     def export_transactions(self, date: str) -> DataFrame | None:
@@ -63,7 +63,7 @@ class AccountOperations:
             f"settled-transactions-between?minTransactionTimestamp={date}&"
             f"maxTransactionTimestamp={datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}"
         )
-        transactions = requests.get(query_url, headers=self.headers)
+        transactions = requests.get(query_url, headers=self.headers, timeout=10)
         transactions.raise_for_status()
         feed_items: list[dict] = transactions.json()["feedItems"]
         raw_export = json_normalize(feed_items)
