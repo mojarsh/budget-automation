@@ -61,7 +61,7 @@ class AccountOperations:
         query_url = (
             f"{self.url}feed/account/{self._account_uid}/"
             f"settled-transactions-between?minTransactionTimestamp={date}&"
-            f"maxTransactionTimestamp={datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")}"
+            f"maxTransactionTimestamp={datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}"
         )
         transactions = requests.get(query_url, headers=self.headers)
         transactions.raise_for_status()
@@ -74,6 +74,7 @@ class AccountOperations:
         else:
             return _clean_raw_export(raw_export)
 
+
 def _rename_columns(df: DataFrame) -> DataFrame:
     """Renames columns using mapping dict specified."""
 
@@ -83,9 +84,7 @@ def _rename_columns(df: DataFrame) -> DataFrame:
 def _parse_dates(df: DataFrame) -> DataFrame:
     """Strips date string from timestamp returned by Starling API."""
 
-    return df.assign(
-        transaction_date=pd.to_datetime(df["transaction_date"].str[:10]).dt.date
-    )
+    return df.assign(transaction_date=pd.to_datetime(df["transaction_date"].str[:10]).dt.date)
 
 
 def _apply_mapping(df: DataFrame) -> DataFrame:

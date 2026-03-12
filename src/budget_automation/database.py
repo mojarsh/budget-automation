@@ -29,7 +29,6 @@ class PostgresDatabase:
         records = df.to_dict(orient="records")
 
         with self.engine.begin() as conn:
-
             result = conn.execute(
                 insert(self._table)
                 .values(records)
@@ -43,7 +42,8 @@ class PostgresDatabase:
 
         result_df = pd.DataFrame(inserted, columns=df.columns)
         decimal_cols = [
-            col for col in result_df.columns
+            col
+            for col in result_df.columns
             if not result_df[col].empty and isinstance(result_df[col].iloc[0], Decimal)
         ]
         result_df[decimal_cols] = result_df[decimal_cols].astype(float)

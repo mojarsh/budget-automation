@@ -21,6 +21,7 @@ dev = [
     "mypy>=1.10,<2",
     "bandit>=1.9,<2",
     "pre-commit>=4.5.1",
+    "types-requests>=2.32.4.20260107",
 ]
 test = [
     "coverage>=7.6.1,<8",
