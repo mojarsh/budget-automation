@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 import pandas as pd
 import requests
 from pandas import DataFrame, json_normalize
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from budget_automation.config import get_settings
 
@@ -30,6 +31,18 @@ COLUMN_NAME_MAPPING = {
 logger = logging.getLogger(__name__)
 
 
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    reraise=True,
+)
+def _get_with_retry(url: str, headers: dict[str, str]) -> requests.Response:
+    """GET with three retries, exponential backoff, and explicit timeout."""
+    response = requests.get(url, headers=headers, timeout=10)
+    response.raise_for_status()
+    return response
+
+
 def gen_starling_api_headers() -> dict[str, str]:
     """Read Starling credentials from .env file, and generate API headers."""
 
@@ -53,7 +66,7 @@ class AccountOperations:
     def _account_uid(self) -> str:
         """Property returns Starling Bank account uid."""
 
-        account = requests.get(self.url + "accounts", headers=self.headers, timeout=10)
+        account = _get_with_retry(self.url + "accounts", headers=self.headers)
         return str(account.json()["accounts"][0]["accountUid"])
 
     def export_transactions(self, date: str) -> DataFrame | None:
@@ -63,7 +76,7 @@ class AccountOperations:
             f"settled-transactions-between?minTransactionTimestamp={date}&"
             f"maxTransactionTimestamp={datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}"
         )
-        transactions = requests.get(query_url, headers=self.headers, timeout=10)
+        transactions = _get_with_retry(query_url, headers=self.headers)
         transactions.raise_for_status()
         feed_items: list[dict] = transactions.json()["feedItems"]
         raw_export = json_normalize(feed_items)
