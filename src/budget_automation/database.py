@@ -8,7 +8,7 @@ from budget_automation.config import get_settings
 
 
 class PostgresDatabase:
-    def __init__(self):
+    def __init__(self) -> None:
         settings = get_settings()
         self.engine = create_engine(settings.database_url, pool_size=5, max_overflow=10)
         self._table = Table(
@@ -25,7 +25,7 @@ class PostgresDatabase:
         )
 
     def upsert_new_transactions(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Truncate and load the new_transactions table with given DataFrame."""
+        """Insert new transactions, skip duplicates and return inserted rows."""
         records = df.to_dict(orient="records")
 
         with self.engine.begin() as conn:
