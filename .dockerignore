@@ -9,3 +9,4 @@ secrets.env
 *.cred
 .gitignore
 Makefile
+infra/

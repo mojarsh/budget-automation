@@ -1,0 +1,10 @@
+[Unit]
+Description=Budget Automation Export
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RuntimeDirectory=budget_tmp
+StandardOutput=journal
+StandardError=journal
