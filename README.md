@@ -25,7 +25,7 @@ flowchart TD
 
     subgraph containers [Docker]
         G[budget_automation]
-        H[(postgres_db\nON CONFLICT DO NOTHING)]
+        H[(postgres_db<br/>ON CONFLICT DO NOTHING)]
     end
 
     I[Google Sheets]
@@ -110,3 +110,7 @@ Merges to `main` trigger a Docker build and push to [GHCR](https://github.com/mo
 ## Deployment
 
 See [`infra/README.md`](infra/README.md) for full host setup instructions including systemd, sudoers, and credential encryption.
+
+## Acknowledgements
+
+Development assisted by [Claude](https://claude.ai) (Anthropic).
