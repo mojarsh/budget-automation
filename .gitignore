@@ -3,6 +3,7 @@ google_creds.json
 *.db
 .DS_Store
 /logs
+.env.test
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

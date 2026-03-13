@@ -23,7 +23,7 @@ RUN apt-get update && \
 
 COPY --from=builder /app/.venv /app/.venv
 COPY src/ src/
-COPY logging_config.json .
+COPY config/ config/
 
 # Ensure the virtual environment's bin directory is on the PATH
 ENV PATH="/app/.venv/bin:$PATH"

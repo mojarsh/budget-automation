@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     postgres_host: str = "db"
     postgres_port: int = 5432
     postgres_db: str = "tcpostgres"
-    log_config_path: Path = Path("logging_config.json")
+    log_config_path: Path = Path("config/logging_config.json")
+    category_mapping_path: Path = Path("config/category_mapping.json")
     starling_url: str = "https://api.starlingbank.com/api/v2/"
     sheets_workbook: str = "Budget"
     sheets_worksheet_id: int = 4
