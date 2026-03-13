@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import UTC, datetime
 
@@ -9,19 +10,6 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from budget_automation.config import get_settings
 
 STATUS_MAPPING = {"SETTLED": "✅"}
-CATEGORY_MAPPING = {
-    "INVESTMENTS": "S&S ISA",
-    "EATING_OUT": "Eating Out",
-    "TRANSPORT": "Public Transport",
-    "SHOPPING": "Everything Else",
-    "GROCERIES": "Everything Else",
-    "ENTERTAINMENT": "Entertainment",
-    "BILLS_AND_SERVICES": "Phone Bill",
-    "LIFESTYLE": "Everything Else",
-    "HOLIDAYS": "Holiday Fund",
-    "GENERAL": "Everything Else",
-    "PERSONAL_CARE": "Haircut",
-}
 COLUMN_NAME_MAPPING = {
     "feedItemUid": "transaction_id",
     "settlementTime": "transaction_date",
@@ -29,6 +17,7 @@ COLUMN_NAME_MAPPING = {
 }
 
 logger = logging.getLogger(__name__)
+settings = get_settings()
 
 
 @retry(
@@ -45,8 +34,6 @@ def _get_with_retry(url: str, headers: dict[str, str]) -> requests.Response:
 
 def gen_starling_api_headers() -> dict[str, str]:
     """Read Starling credentials from .env file, and generate API headers."""
-
-    settings = get_settings()
 
     return {"Authorization": "Bearer " + settings.starling_pat}
 
@@ -102,9 +89,12 @@ def _parse_dates(df: DataFrame) -> DataFrame:
 def _apply_mapping(df: DataFrame) -> DataFrame:
     """Apply mappings for transaction status and category."""
 
+    with open(settings.category_mapping_path) as f:
+        category_mapping: dict[str, str] = json.load(f)
+
     return df.assign(
         status=df["status"].replace(STATUS_MAPPING),
-        category=df["category"].replace(CATEGORY_MAPPING),
+        category=df["category"].replace(category_mapping),
     )
 
 

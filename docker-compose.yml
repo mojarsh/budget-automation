@@ -16,6 +16,7 @@ services:
       env_file:
         - ${CREDS_DIR:-.}/.env
       volumes:
+        - ${BASE_DIR}/config/category_mapping.json:/app/config/category_mapping.json:ro
         - ${GOOGLE_CREDS_PATH:-./google_creds.json}:/app/google_creds.json:ro
         - ${BASE_DIR:-./logs}/logs/budget_automation.log:/app/budget_automation.log
       depends_on:
