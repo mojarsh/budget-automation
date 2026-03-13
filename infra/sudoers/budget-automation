@@ -1,0 +1,6 @@
+%budget-automation ALL=(ALL) NOPASSWD: /usr/bin/mount
+%budget-automation ALL=(ALL) NOPASSWD: /usr/bin/umount
+%budget-automation ALL=(ALL) NOPASSWD: /usr/bin/systemd-creds
+%budget-automation ALL=(ALL) NOPASSWD: /usr/bin/rm
+%budget-automation ALL=(ALL) NOPASSWD: /usr/bin/docker
+%budget-automation ALL=(ALL) NOPASSWD: SETENV: /usr/bin/docker compose run --rm budget_automation
