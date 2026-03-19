@@ -23,7 +23,27 @@ sudo chmod 0440 /etc/sudoers.d/budget-automation
 sudo visudo -c -f /etc/sudoers.d/budget-automation
 ```
 
-### 4. Systemd
+### 4. Runtime directory
+
+The script mounts a RAM-only tmpfs at `/run/user/UID/budget_tmp` to hold decrypted credentials. This path is wiped on every reboot — a tmpfiles rule ensures it is recreated automatically on boot. Without this, the service will fail after any reboot.
+
+Replace `YOUR_UID` with the numeric user ID of the service user (find it with `id -u YOUR_USERNAME`):
+
+```bash
+sudo tee /etc/tmpfiles.d/budget-automation.conf << EOF
+d /run/user/YOUR_UID/budget_tmp 0700 YOUR_USERNAME YOUR_USERNAME -
+EOF
+
+sudo systemd-tmpfiles --create /etc/tmpfiles.d/budget-automation.conf
+```
+
+Verify the directory was created:
+
+```bash
+ls -la /run/user/YOUR_UID/budget_tmp
+```
+
+### 5. Systemd
 The versioned service file contains no username or paths. A drop-in override supplies these on the host. The empty `ExecStart=` line is required — systemd appends rather than replaces `ExecStart` across files, so the base value must be explicitly cleared first:
 ```bash
 sudo cp infra/systemd/budget-automation.service /etc/systemd/system/
@@ -47,7 +67,7 @@ Verify the resolved configuration — confirm only one `ExecStart` entry is pres
 systemctl show budget-automation.service | grep -E "ExecStart|User|WorkingDirectory"
 ```
 
-### 5. Credentials
+### 6. Credentials
 See `.env.example` in the project root for required fields. Encrypt and securely delete the plaintext files:
 ```bash
 CREDS_DIR="$HOME/automation/budgeting/creds"
@@ -65,7 +85,7 @@ sudo systemd-creds decrypt "$CREDS_DIR/budget-env.cred" - | head -3
 
 > **Note:** Encrypted `.cred` files are cryptographically bound to the machine they were created on. When migrating to a new server, credentials must be re-encrypted — the old `.cred` files cannot be transferred.
 
-### 6. Docker image
+### 7. Docker image
 ```bash
 docker pull ghcr.io/mojarsh/budget-automation:latest
 ```
@@ -100,3 +120,4 @@ The timer runs at 00:00, 06:00, 12:00, and 18:00 UTC. `Persistent=true` means if
 | `permission denied` on Docker socket | User not in `docker` group or sudoers misconfigured | Check `groups YOUR_USERNAME` and `sudo visudo -c -f /etc/sudoers.d/budget-automation` |
 | `env file not found` | Filename mismatch between script and `docker-compose.yml` | Ensure both reference the same filename for the decrypted credential |
 | Credentials fail to decrypt | `.cred` files are machine-specific | Re-encrypt on the new machine |
+| Service fails after reboot | `/run/user/UID/budget_tmp` wiped on reboot | Ensure tmpfiles rule exists and ran: `sudo systemd-tmpfiles --create /etc/tmpfiles.d/budget-automation.conf` |
