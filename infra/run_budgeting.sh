@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Path configuration
 BASE_DIR="${BUDGET_BASE_DIR:-$HOME/automation/budgeting}"
-CREDS_DIR="$BASE_DIR/creds"
+CREDS_DIR="${BUDGET_CREDS_DIR:-$BASE_DIR/creds}"
 # Using /run/user/$(id -u) ensures this is a RAM-only location
 TEMP_RAM="/run/user/$(id -u)/budget_tmp"
 
