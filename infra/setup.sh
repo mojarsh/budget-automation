@@ -32,7 +32,7 @@ echo " budget-automation host setup"
 echo "============================================="
 echo
 
-read -rp "Service username (e.g. joe): " SERVICE_USER
+read -rp "Service username: " SERVICE_USER
 SERVICE_UID=$(id -u "$SERVICE_USER" 2>/dev/null) || error "User '$SERVICE_USER' not found."
 SERVICE_HOME=$(eval echo "~$SERVICE_USER")
 PROJECT_ROOT="$(pwd)"
@@ -147,10 +147,16 @@ success "Docker image pulled"
 # 9. Docker compose config verification
 # -----------------------------------------------------------------------------
 info "Validating docker compose configuration..."
-CREDS_DIR="$SERVICE_HOME/automation/budgeting/creds" \
-GOOGLE_CREDS_PATH="$SERVICE_HOME/automation/budgeting/creds/google_creds.json" \
+DUMMY_CREDS="/tmp/budget_validate_$$"
+mkdir -p "$DUMMY_CREDS"
+touch "$DUMMY_CREDS/.env" "$DUMMY_CREDS/google_creds.json"
+
+CREDS_DIR="$DUMMY_CREDS" \
+GOOGLE_CREDS_PATH="$DUMMY_CREDS/google_creds.json" \
 BASE_DIR="$SERVICE_HOME/automation/budgeting" \
-  docker compose config > /dev/null || error "docker compose config validation failed"
+  docker compose config > /dev/null || { rm -rf "$DUMMY_CREDS"; error "docker compose config validation failed"; }
+
+rm -rf "$DUMMY_CREDS"
 success "Docker compose configuration is valid"
 # -----------------------------------------------------------------------------
 # Summary
