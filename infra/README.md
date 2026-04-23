@@ -53,9 +53,11 @@ sudo mkdir -p /etc/systemd/system/budget-automation.service.d/
 sudo tee /etc/systemd/system/budget-automation.service.d/override.conf << OVERRIDE
 [Service]
 User=YOUR_USERNAME
-WorkingDirectory=/home/YOUR_USERNAME/automation/budget-automation
+WorkingDirectory=/path/to/project/root
 ExecStart=
-ExecStart=/home/YOUR_USERNAME/automation/budget-automation/infra/run_budgeting.sh
+ExecStart=/path/to/project/root/infra/run_budgeting.sh
+Environment=BUDGET_BASE_DIR=/path/to/project/root
+Environment=BUDGET_CREDS_DIR=/path/to/project/root/creds
 OVERRIDE
 
 sudo systemctl daemon-reload
@@ -70,7 +72,7 @@ systemctl show budget-automation.service | grep -E "ExecStart|User|WorkingDirect
 ### 6. Credentials
 See `.env.example` in the project root for required fields. Encrypt and securely delete the plaintext files:
 ```bash
-CREDS_DIR="$HOME/automation/budgeting/creds"
+CREDS_DIR="$(pwd)/creds"
 mkdir -p "$CREDS_DIR"
 
 sudo systemd-creds encrypt secrets.env "$CREDS_DIR/budget-env.cred"
@@ -97,6 +99,38 @@ docker pull ghcr.io/mojarsh/budget-automation:latest
 sudo systemctl start budget-automation.service
 journalctl -u budget-automation.service --no-pager
 ```
+
+---
+
+### 8. Database migration (new server only)
+
+If migrating from an existing server, restore the database before
+starting the full service. Start postgres with inline credentials
+to avoid the credential decryption dependency:
+
+    # Create a temporary placeholder .env so docker compose validates
+    touch .env
+
+    # Start only the postgres container
+    POSTGRES_USER=youruser \
+    POSTGRES_PASSWORD=yourpassword \
+    POSTGRES_DB=tcpostgres \
+    docker compose up -d db
+
+    # Restore the dump
+    docker exec -i postgres_db psql -U youruser tcpostgres \
+      < /tmp/budget_db_YYYYMMDD.sql
+
+    # Verify row counts
+    docker exec postgres_db psql -U youruser tcpostgres \
+      -c "SELECT relname, n_live_tup FROM pg_stat_user_tables ORDER BY n_live_tup DESC"
+
+    # Bring down and replace .env with encrypted credentials
+    docker compose down
+    shred -u .env
+
+Note: encrypted .cred files must be re-created on the new machine
+before running the full service.
 
 ---
 

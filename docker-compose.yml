@@ -11,7 +11,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   budget_automation:
-      image: budget_automation:latest
+      image: ghcr.io/mojarsh/budget-automation:latest
       container_name: budget_automation
       env_file:
         - ${CREDS_DIR:-.}/.env

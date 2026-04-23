@@ -1,4 +1,5 @@
 # Additional Exclusions
+/creds
 google_creds.json
 *.db
 .DS_Store

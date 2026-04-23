@@ -109,6 +109,8 @@ User=${SERVICE_USER}
 WorkingDirectory=${PROJECT_ROOT}
 ExecStart=
 ExecStart=${PROJECT_ROOT}/infra/run_budgeting.sh
+Environment=BUDGET_BASE_DIR=${PROJECT_ROOT}
+Environment=BUDGET_CREDS_DIR=${PROJECT_ROOT}/creds
 EOF
 success "Drop-in override created"
 
@@ -129,7 +131,7 @@ echo
 info "Credential setup must be done manually — see infra/README.md step 6."
 info "Required files: secrets.env and google_creds.json"
 info "Encrypt with:"
-echo "  CREDS_DIR=\"\$HOME/automation/budgeting/creds\""
+echo "  CREDS_DIR=\"\$PROJECT_ROOT/automation/budgeting/creds\""
 echo "  mkdir -p \"\$CREDS_DIR\""
 echo "  sudo systemd-creds encrypt secrets.env \"\$CREDS_DIR/budget-env.cred\""
 echo "  sudo systemd-creds encrypt google_creds.json \"\$CREDS_DIR/google-json.cred\""
@@ -153,7 +155,7 @@ touch "$DUMMY_CREDS/.env" "$DUMMY_CREDS/google_creds.json"
 
 CREDS_DIR="$DUMMY_CREDS" \
 GOOGLE_CREDS_PATH="$DUMMY_CREDS/google_creds.json" \
-BASE_DIR="$SERVICE_HOME/automation/budgeting" \
+BASE_DIR="$PROJECT_ROOT" \
   docker compose config > /dev/null || { rm -rf "$DUMMY_CREDS"; error "docker compose config validation failed"; }
 
 rm -rf "$DUMMY_CREDS"
