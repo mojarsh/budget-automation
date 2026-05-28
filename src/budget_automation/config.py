@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     category_mapping_path: Path = Path("config/category_mapping.json")
     starling_url: str = "https://api.starlingbank.com/api/v2/"
     sheets_workbook: str = "Budget"
-    sheets_worksheet_id: int = 4
+    sheets_worksheet_id: int = 2
 
     @computed_field  # type: ignore[prop-decorator]
     @property
