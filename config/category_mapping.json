@@ -9,5 +9,8 @@
     "LIFESTYLE": "Everything Else",
     "HOLIDAYS": "Holiday Fund",
     "GENERAL": "Everything Else",
-    "PERSONAL_CARE": "Haircut"
+    "PERSONAL_CARE": "Haircut",
+    "FUEL": "Petrol",
+    "INSURANCE": "Union",
+    "FITNESS": "Football"
 }
