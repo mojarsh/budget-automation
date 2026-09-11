@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # URL for ntfy push notifications
-NTFY_URL="http://192.168.1.200:8446/homelab-alerts"
+NTFY_URL="http://192.168.1.92:8446/homelab-alerts"
 # Path configuration
 BASE_DIR="${BUDGET_BASE_DIR:-$HOME/automation/budgeting}"
 CREDS_DIR="${BUDGET_CREDS_DIR:-$BASE_DIR/creds}"
