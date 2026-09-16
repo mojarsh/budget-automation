@@ -12,9 +12,9 @@ class Settings(BaseSettings):
     starling_pat: str
     postgres_user: str
     postgres_password: str
-    postgres_host: str = "db"
+    postgres_host: str = "postgres_db"
     postgres_port: int = 5432
-    postgres_db: str = "tcpostgres"
+    postgres_db: str = "budgeting_app"
     log_config_path: Path = Path("config/logging_config.json")
     category_mapping_path: Path = Path("config/category_mapping.json")
     starling_url: str = "https://api.starlingbank.com/api/v2/"
